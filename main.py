@@ -3,9 +3,15 @@ from tkinter import messagebox
 from PIL import Image, ImageTk
 import pygetwindow as gw
 import pyautogui
-import move
 import webbrowser
+import base64
+import move
+from io import BytesIO
 import os
+
+# 从 encoded_images.py 导入图片数据
+from encoded_images import encoded_images
+
 
 # 指定窗口标题
 WINDOW_TITLE = "崩坏：星穹铁道"
@@ -61,27 +67,25 @@ def take_screenshot():
         os.remove("input.png")
 
 
-def show_image(tutorial_window, filename):
-    try:
-        tutorial_img = Image.open(filename)
-        tutorial_img.thumbnail((1280, 720))  # 调整显示尺寸
-        tutorial_img = ImageTk.PhotoImage(tutorial_img)
-        img_label = tk.Label(tutorial_window, image=tutorial_img)
-        img_label.image = tutorial_img  # 防止图片被垃圾回收
-        img_label.pack(pady=10)
-    except Exception as e:
-        error_label = tk.Label(tutorial_window, text="无法加载教程图片。", fg="red")
-        error_label.pack(pady=10)
-
-
 def show_tutorial():
     tutorial_window = tk.Toplevel(root)
     tutorial_window.title("使用教程")
     tutorial_text = "使用教程:\n\n1. 如图启动模拟宇宙,注意不要挡住地图!\n2.点击截图，稍等即可生成线路\n"
     label = tk.Label(tutorial_window, text=tutorial_text, justify="left")
     label.pack(pady=10, padx=10)
-    show_image(tutorial_window, "1.png")
-    show_image(tutorial_window, "2.png")
+    for image_name in ["1.png", "2.png"]:
+        try:
+            decoded_image = base64.b64decode(encoded_images[image_name])
+            image = Image.open(BytesIO(decoded_image))
+            image.thumbnail((1280, 720))  # 调整显示尺寸
+            tutorial_img = ImageTk.PhotoImage(image)
+            img_label = tk.Label(tutorial_window, image=tutorial_img)
+            img_label.image = tutorial_img  # 防止图片被垃圾回收
+            img_label.pack(pady=10)
+        except Exception as e:
+            error_label = tk.Label(tutorial_window, text=f"无法加载教程图片: {image_name}", fg="red",
+                                   font=("Arial", 12))
+            error_label.pack(pady=10)
 
 
 # 创建主窗口
