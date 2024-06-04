@@ -96,7 +96,7 @@ def draw_path(image, path):
         cv2.line(image, path[i], path[i + 1], (0, 0, 255), 2)
 
 
-def main(image_path, output_path):
+def move(image_path, output_path):
     hexagons = detect_hexagons(image_path, output_path)
     if not hexagons:
         print("No hexagons detected.")
