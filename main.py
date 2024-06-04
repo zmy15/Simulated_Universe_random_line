@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, Scrollbar
 from PIL import Image, ImageTk
 import pygetwindow as gw
 import pyautogui
@@ -86,22 +86,46 @@ class function:
     def show_tutorial(self):
         tutorial_window = tk.Toplevel(self.master)
         tutorial_window.title("使用教程")
+        tutorial_window.geometry("1280x1080")
+
+        # 创建Canvas
+        canvas = tk.Canvas(tutorial_window)
+        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        # 创建滚动条
+        scrollbar = tk.Scrollbar(tutorial_window, orient=tk.VERTICAL, command=canvas.yview)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        # 将Canvas和滚动条关联
+        canvas.configure(yscrollcommand=scrollbar.set)
+        canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox('all')))
+
+        # 创建一个Frame来包含所有教程内容
+        content_frame = tk.Frame(canvas)
+        canvas.create_window((0, 0), window=content_frame, anchor="nw")
+
         tutorial_text = "使用教程:\n\n1. 如图启动模拟宇宙,注意不要挡住地图!\n2.点击截图，稍等即可生成线路\n"
-        label = tk.Label(tutorial_window, text=tutorial_text, justify="left")
+        label = tk.Label(content_frame, text=tutorial_text)
         label.pack(pady=10, padx=10)
+
         for image_name in ["1.png", "2.png"]:
             try:
                 decoded_image = base64.b64decode(encoded_images[image_name])
                 image = Image.open(BytesIO(decoded_image))
                 image.thumbnail((1280, 720))  # 调整显示尺寸
                 tutorial_img = ImageTk.PhotoImage(image)
-                img_label = tk.Label(tutorial_window, image=tutorial_img)
+                img_label = tk.Label(content_frame, image=tutorial_img)
                 img_label.image = tutorial_img  # 防止图片被垃圾回收
                 img_label.pack(pady=10)
             except Exception as e:
-                error_label = tk.Label(tutorial_window, text=f"无法加载教程图片: {image_name}", fg="red",
+                error_label = tk.Label(content_frame, text=f"无法加载教程图片: {image_name}", fg="red",
                                        font=("Arial", 12))
                 error_label.pack(pady=10)
+
+        def on_mouse_wheel(event):
+            canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+        canvas.bind_all("<MouseWheel>", on_mouse_wheel)
 
 
 def main():
