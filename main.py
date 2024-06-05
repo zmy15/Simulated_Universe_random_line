@@ -1,17 +1,19 @@
-import tkinter as tk
-from tkinter import messagebox, Scrollbar
-from PIL import Image, ImageTk
-import pygetwindow as gw
-import pyautogui
-import webbrowser
 import base64
-import move
-from io import BytesIO
 import os
+import tkinter as tk
+import webbrowser
+from io import BytesIO
+from tkinter import messagebox
 
+import pyautogui
+import pygetwindow as gw
+from PIL import Image, ImageTk
+
+import move
 # 从 encoded_images.py 导入图片数据
 from encoded_images import encoded_images
 from ico import encoded_image
+from random_character import random_character
 
 # 指定窗口标题
 WINDOW_TITLE = "崩坏：星穹铁道"
@@ -40,6 +42,9 @@ class function:
         self.tutorial_button.pack(pady=10)
 
         self.screenshot_button = tk.Button(master, text="截图", command=self.take_screenshot)
+        self.screenshot_button.pack(pady=20)
+
+        self.screenshot_button = tk.Button(master, text="随机角色", command=self.random_character)
         self.screenshot_button.pack(pady=20)
 
         self.author_label = tk.Label(master, text="点击关注作者：这次一定消耗6个硬币", fg="blue")
@@ -126,6 +131,11 @@ class function:
             canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
         canvas.bind_all("<MouseWheel>", on_mouse_wheel)
+
+    def random_character(self):
+        random_window = tk.Toplevel(self.master)
+        random_window.title("随机角色")
+        random_screen = random_character(random_window)
 
 
 def main():
